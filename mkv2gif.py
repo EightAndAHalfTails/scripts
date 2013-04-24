@@ -80,9 +80,9 @@ if __name__ == '__main__':
         print('>'+command)
         subprocess.call(command, shell=True)
 
-    fuzz_factor="-fuzz "+arguments['--fuzz']
-    if fuzz_factor is None:
-        fuzz_factor=''
+    fuzz_factor=''
+    if arguments['--fuzz'] is not None:
+        fuzz_factor="-fuzz " + arguments['--fuzz']
     command = "convert -delay 5 -loop 0 {} -layers optimize-transparency {} {}.gif".format(
         fuzz_factor,
         os.path.join(tmpdir, arguments['<output>']+"*.gif"),
