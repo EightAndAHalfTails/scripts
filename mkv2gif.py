@@ -83,7 +83,7 @@ if __name__ == '__main__':
     fuzz_factor=''
     if arguments['--fuzz'] is not None:
         fuzz_factor="-fuzz " + arguments['--fuzz']
-    command = "convert -delay 5 -loop 0 {} -layers optimize-transparency {} {}.gif".format(
+    command = "convert -delay 4 -loop 0 {} -layers optimize-transparency {} {}.gif".format(
         fuzz_factor,
         os.path.join(tmpdir, arguments['<output>']+"*.gif"),
         arguments['<output>'])
