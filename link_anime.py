@@ -33,4 +33,7 @@ if __name__=="__main__":
         target=args.target + '/' + filename
         #print(args.target + filename)
         #print(link)
-        os.symlink(target, link)
+        try:
+            os.symlink(target, link)
+        except FileExistsError:
+            print("File Exists: {}".format(target))
