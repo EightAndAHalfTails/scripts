@@ -44,11 +44,11 @@ def readBitmapHeader(f):
     f.read(4) # the verticalal resolution of the image. (pixel per meter, signed integer)
     f.read(4) # the number of colors in the color palette, or 0 to default to 2^n
     f.read(4) # the number of important colors used, or 0 when every color is important; generally ignored
-    return (struct.unpack('<i', width), struct.unpack('<i', height))
+    return struct.unpack('<i', width), struct.unpack('<i', height)
 
 def average(frame, resolution="640x360"):
     f = open(frame, 'rb')
-    (width, height) = readBitmapHeader(f)
+    width, height = readBitmapHeader(f)
 
     reds = 0
     greens = 0
