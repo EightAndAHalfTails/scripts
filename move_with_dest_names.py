@@ -3,9 +3,9 @@
 """Move all contents from one directory to another, keeping the destination names. the two directories must have an equal number of files
 
 Usage:
-  stripify.py [options] <source> <destination>
-  stripify.py (-h | --help)
-  stripify.py --version
+  move_with_dest_names.py [options] <source> <destination>
+  move_with_dest_names.py (-h | --help)
+  move_with_dest_names.py --version
 
 Options:
   -h --help            Show this screen.
@@ -22,7 +22,7 @@ def move(source, dest):
     subprocess.call("mv \"{}\" \"{}\"".format(source, dest), shell=True)
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version='stripify 0.1')
+    arguments = docopt(__doc__, version='move_with_dest_names 0.1')
     verbose = True if arguments["-v"] or arguments["-n"] else False
 
     dry_run = True if arguments["-n"] else False
