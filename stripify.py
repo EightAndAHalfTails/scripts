@@ -53,28 +53,26 @@ def average(frame):
     #print("{0:x}{1:x}{2:x}".format(mean_red,mean_green,mean_blue))
     f.close()
     return (mean_red, mean_green, mean_blue)
-
-if __name__ == '__main__':
-    arguments = docopt(__doc__, version='stripify 0.1')
-    #print(arguments)
     
+def extractFrames(video_file, frame_rate="1/10", resolution="640x360"):
+"""Extracts frames from a video file, stores them in a temp directory, and returns a path to that directory"""
     tmpdir = mkdtemp()
     frames = os.path.join(tmpdir, "%05d.bmp")
-    subprocess.call("ffmpeg -i {} -r 1/10 -s 640x360 {}".format(arguments['<input>'], frames), shell=True)
-    
-    #subs = os.path.join(tmpdir, "subs.ass")
-    #mp4 = os.path.join(tmpdir, "tmp.mp4")
+    subprocess.call("ffmpeg -i {} -r {} -s {} {}".format(video_file, frame_rate, reslolution, frames), shell=True)
+    return tmpdir
 
+def analyseFrames(frame_dir):
     stripes = []
-    ls = os.listdir(tmpdir)
+    ls = os.listdir(frame_dir)
     ls.sort()
     for frame in ls:
-        #print(frame)
         print("{}: Analysing {}".format(strftime('%H:%M:%S'), frame))
-        frame = os.path.join(tmpdir, frame)
+        frame = os.path.join(frame_dir, frame)
         stripes.append(average(frame))
+    return stripes
 
-    out = open("stripes.bmp", 'wb')
+def drawImage(stripes, output_filename="stripes.bmp"):
+    out = open(output_filename, 'wb')
     out.write(b'\x42\x4d') #BM marks start of bitmap image
     out.write(struct.pack('<i', len(stripes)*stripe_width*rowcount + 36)) #size of file
     out.write(b'\x00\x00\x00\x00') #reserved
@@ -94,4 +92,12 @@ if __name__ == '__main__':
                 out.write(struct.pack('<B', stripe[2]))
     
     out.close()
-    rmtree(tmpdir)
+    
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__, version='stripify 0.1')
+
+    frame_dir = extractFrames(arguments['<input>'])
+    stripes = analyseFrames(frame_dir)
+    drawImage(stripes)
+    rmtree(frame_dir)
