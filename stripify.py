@@ -41,7 +41,7 @@ def readBitmapHeader(f):
     f.read(4) # the compression method being used.
     f.read(4) # the image size. This is the size of the raw bitmap data, and should not be confused with the file size.
     f.read(4) # the horizontal resolution of the image. (pixel per meter, signed integer)
-    f.read(4) # the verticalal resolution of the image. (pixel per meter, signed integer)
+    f.read(4) # the vertical resolution of the image. (pixel per meter, signed integer)
     f.read(4) # the number of colors in the color palette, or 0 to default to 2^n
     f.read(4) # the number of important colors used, or 0 when every color is important; generally ignored
     return struct.unpack('<i', width), struct.unpack('<i', height)
