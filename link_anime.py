@@ -15,8 +15,12 @@ def niceify(string):
     result = unbracket(string)
     result = unbracket(result, left='(', right=')')
     result = result.replace('.mkv','')
+    result = result.replace('.avi','')
     result = result.replace('_',' ')
     result = result.replace('.',' ')
+    result = result.replace('v2', '')
+    result = result.replace('v3', '')
+    result = result.replace('`', '\'')
     result = result.lstrip()
     result = result.rstrip()
     return result
