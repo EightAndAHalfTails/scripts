@@ -27,11 +27,15 @@ from shutil import rmtree
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='mkv2gif 0.1')
     print(arguments)
+
+    frame_type = "png"
+    fps = 24
+    frame_delay = 1000/fps
     
     tmpdir = mkdtemp()
     subs = os.path.join(tmpdir, "subs.ass")
     mp4 = os.path.join(tmpdir, "tmp.mp4")
-    frames = os.path.join(tmpdir, arguments['<output>']+"%05d.gif")
+    frames = os.path.join(tmpdir, arguments['<output>']+"%05d."+frame_type)
     
     length = ''
     if arguments.get('--length') is not None:
@@ -71,9 +75,10 @@ if __name__ == '__main__':
         subprocess.call(command, shell=True)
 
     else:
-        command = "ffmpeg {} {} -i {} {} {}".format(
+        command = "ffmpeg {} {} -r {} -i {} {} {}".format(
             start,
             length,
+            fps,
             quote(arguments['<input>']),
             res,
             frames)
@@ -83,9 +88,10 @@ if __name__ == '__main__':
     fuzz_factor=''
     if arguments['--fuzz'] is not None:
         fuzz_factor="-fuzz " + arguments['--fuzz']
-    command = "convert -delay 4 -loop 0 {} -layers optimize-transparency {} {}.gif".format(
+    command = "convert -delay {} -loop 0 {} -layers optimize-transparency {} {}.gif".format(
+        frame_delay/10,
         fuzz_factor,
-        os.path.join(tmpdir, arguments['<output>']+"*.gif"),
+        os.path.join(tmpdir, arguments['<output>']+"*."+frame_type),
         arguments['<output>'])
     print('>'+command)
     subprocess.call(command, shell=True)

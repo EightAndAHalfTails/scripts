@@ -1,0 +1,138 @@
+#!/bin/zsh
+
+usage="Usage: updateImperialCalendar [-dpu]"
+help="$usage"
+
+download_required=false
+parse_required=false
+upload_required=false
+
+while getopts "dpuh" opt; do
+  case $opt in
+    d)  download_required=true;;
+    p)  parse_required=true;;
+    u)  upload_required=true;;
+    h)	echo $help; exit 0;;
+    ?)	echo $usage; exit 1;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+#############
+# Constants #
+#############
+
+working_dir=~/.cache/updateImperialCalendar
+download_dir=$working_dir/download
+dav_user="jbh111"
+dav_url="http://localhost:1080/users/jake.humphrey11@imperial.ac.uk/calendar/"
+procical=~/Programming/procical/procical
+uploader=~/Programming/procical/upload_ics_to_google_2.py
+out_file=out.procical.ics
+
+#############
+# Functions #
+#############
+
+function cadaver_command {
+  pipe=/tmp/dph10-cal-pipe
+  [ -p $pipe ] || mkfifo $pipe
+
+  (
+    echo "$1" ## username
+    echo "$2" ## password
+    if [ $3 ]; then
+      cat $pipe >/dev/null
+      echo "$3" ## command
+    fi
+  ) | cadaver $dav_url | (
+                          if [ $3 ]; then
+                            wait_str "dav:/users/jake.humphrey11@imperial.ac.uk/calendar/> " 
+                            echo > $pipe
+                          fi
+                          cat
+                         )
+  rm $pipe
+}
+
+#################
+# Start Davmail #
+#################
+
+if $download_required; then
+  (pgrep -f davmail >/dev/null) || (davmail >/dev/null &; sleep 1)
+fi
+
+#################
+# Get Passwords #
+#################
+
+if $download_required && [ -z $dav_pw ]; then
+  printf "Password for %s @ Imperial: " $dav_user
+  read -s dav_pw
+  echo
+fi
+
+############
+# Download #
+############
+
+if $download_required; then
+  ##-- Setup --##
+  mkdir -p $working_dir
+  cd $working_dir
+  [ -d $download_dir ] && rm -r $download_dir
+  mkdir -p $download_dir
+  cd $download_dir
+
+
+  ##-- Start --##
+  printf "Testing exchange connection: "
+  cadaver_command "$dav_user" "$dav_pw" | grep "Could not" && exit 1 
+  echo OK
+  printf "Downloading calendar file list: "
+  dav_file_list=`cadaver_command "$dav_user" "$dav_pw" "ls" \
+               | grep -vE "^(dav:/users/jake.humphrey11@imperial.ac.uk/calendar/>|Authentication|Username|Connection|Listing)" \
+               | awk '{print $1}' \
+               | tr '\n' ' '`
+  echo OK
+  number_of_files=`echo $dav_file_list | wc -w`
+  (progbar $number_of_files "ls | wc -l" "Downloading $number_of_files events:") &
+  cadaver_command "$dav_user" "$dav_pw" "mget $dav_file_list" >/dev/null
+
+  ##-- Clean up --##
+  #pkill -f davmail
+fi
+
+#########
+# Parse #
+#########
+
+if $parse_required; then
+  ##-- Setup --##
+  if ! [ -d $download_dir ]; then
+    echo "$download_dir doesn't exist, aborting."
+    exit 1
+  fi
+  cd $working_dir
+
+  ##-- Start --##
+  printf "Parsing and formatting: "
+  $procical $download_dir/*
+fi
+
+##########
+# Upload #
+##########
+
+if $upload_required; then
+  ##-- Setup --##
+  if ! [ -f $working_dir/$out_file ]; then
+    echo "$working_dir/$out_file doesn't exist, aborting." 
+    exit 1
+  fi
+  
+  ##-- Start --##
+  cd $working_dir
+  $uploader $out_file "Jake EIE" "<EIE Timetable>" && echo Done!
+fi

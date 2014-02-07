@@ -1,0 +1,31 @@
+#!/bin/zsh
+
+#add command-line parameters eg for whether to delete
+
+backup()
+{
+    source=/media/$1
+    target=$BAK_DIR/
+    rsync -Pauhi --log-file="$_bak_file" "$source" "$target"
+    rsync -Pauhni --delete "$source" "$target" | grep deleting >> "$_dif_file"
+}
+
+BAK_DIR=/media/external
+_now=$(date +"%m_%d_%Y")
+_bak_file="$BAK_DIR/.log/$_now.backup.txt"
+_dif_file="$BAK_DIR/.log/$_now.difference.txt"
+touch $_bak_file
+touch $_dif_file
+
+echo "Starting backup to $BAK_DIR..."
+
+#for directory in Anime Artbooks Blender Documents Downloads Games Images "Light Novels" Manga Movies Music Pictures Programming SteamLibrary TV Torrents Touhou Unsorted Utilities "Visual Novels" Vocaloid Work
+for directory in data anime
+do
+    echo "Backing up $directory..."
+    backup $directory
+done
+
+echo "Backup complete."
+
+exit

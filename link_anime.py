@@ -38,6 +38,8 @@ if __name__=="__main__":
         #print(args.target + filename)
         #print(link)
         try:
-            os.symlink(target, link)
+            os.link(target, link)
         except FileExistsError:
-            print("File Exists: {}".format(target))
+            pass#print("File Exists: {}".format(target))
+        except PermissionError as e:
+            print("Linking file {} failed: {}".format(target, e.strerror))

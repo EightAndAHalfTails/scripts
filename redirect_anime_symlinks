@@ -1,0 +1,13 @@
+#!/bin/zsh
+for name in *
+do
+    #name="$1"
+    target=`readlink "$name"`
+    newtarget=${target/data/anime}
+    
+    ln -sf "$newtarget" "$name"
+    #echo $name
+    #echo $target
+    #echo $newtarget
+    #echo
+done
