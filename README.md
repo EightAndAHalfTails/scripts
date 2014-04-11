@@ -8,6 +8,7 @@ Useful
 ======
 
 - mkv2gif.py        ---converts a specified clip from an mkv file into an animated gif.
+- mkv2webm.py       ---converts a specified clip from an mkv file into a webm file with no audio.
 - timer.py          ---enter events, and how long they take, and it tells you when to set alarms so that they all end at the same time
 
 
