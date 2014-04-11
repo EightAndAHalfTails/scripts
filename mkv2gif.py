@@ -58,9 +58,9 @@ if __name__ == '__main__':
         print('>'+command)
         subprocess.call(command, shell=True)
 
-        command = "ffmpeg {} -i {} -strict -2 -sn -vcodec libx264 {} -vf ass={} {}".format(
+        command = "ffmpeg -i {} -strict -2 -sn -vcodec libx264 {} {} -vf ass={} {}".format(
+            "file:"+quote(arguments['<input>']),
             length,
-            quote(arguments['<input>']),
             start,
             subs,
             mp4)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
             start,
             length,
             fps,
-            quote(arguments['<input>']),
+            "file"+quote(arguments['<input>']),
             res,
             frames)
         print('>'+command)
