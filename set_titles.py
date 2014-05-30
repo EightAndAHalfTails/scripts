@@ -49,7 +49,7 @@ def name_anime(files, titles=None):
             new_file = "{} - {}".format(anime_title, no)
         if verbose:
             print("{} -> {}".format(old_file, new_file))
-        if not dry_run:
+        if not (old_file == new_file) and not dry_run:
             move(old_file, new_file)
 
 if __name__ == '__main__':
